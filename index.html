@@ -280,13 +280,14 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
           <dt>Område</dt><dd>Sjælland</dd>
         </dl>
       </div>
-      <form id="kontaktform" novalidate>
+      <form id="kontaktform">
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
         <div class="row">
-          <label for="navn">Navn<input id="navn" name="navn" autocomplete="name"></label>
+          <label for="navn">Navn<input id="navn" name="navn" autocomplete="name" required></label>
           <label for="org">Kommune eller organisation<input id="org" name="org" autocomplete="organization"></label>
         </div>
         <div class="row">
-          <label for="mail">E-mail<input id="mail" name="mail" type="email" autocomplete="email"></label>
+          <label for="mail">E-mail<input id="mail" name="email" type="email" autocomplete="email" required></label>
           <label for="tlf">Telefon<input id="tlf" name="tlf" type="tel" autocomplete="tel"></label>
         </div>
         <label for="emne">Det drejer sig om
@@ -298,10 +299,9 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
             <option>Andet</option>
           </select>
         </label>
-        <label for="besked">Besked<textarea id="besked" name="besked"></textarea></label>
-        <button class="btn primary" type="submit" style="justify-self:start">Send forespørgsel</button>
-        <p class="form-note">Udkast: formularen sender endnu ikke beskeder.</p>
-        <p class="sent" id="sent" hidden>Tak. I det færdige site vil beskeden blive sendt til os herfra.</p>
+        <label for="besked">Besked<textarea id="besked" name="besked" required></textarea></label>
+        <button class="btn primary" id="sendknap" type="submit" style="justify-self:start">Send forespørgsel</button>
+        <p class="sent" id="sent" hidden role="status"></p>
       </form>
     </div>
   </section>
@@ -315,10 +315,35 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
 </footer>
 
 <script>
-document.getElementById('kontaktform').addEventListener('submit', function(e){
-  e.preventDefault();
-  document.getElementById('sent').hidden = false;
-});
+(function(){
+  var form = document.getElementById('kontaktform');
+  var knap = document.getElementById('sendknap');
+  var status = document.getElementById('sent');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (form._honey.value) return;
+    var data = {};
+    new FormData(form).forEach(function(v, k){ if (k !== '_honey') data[k] = v; });
+    data._subject = 'Ny henvendelse fra relationfoerst.dk: ' + (data.emne || '');
+    data._template = 'table';
+    data._replyto = data.email;
+    knap.disabled = true; knap.textContent = 'Sender…';
+    fetch('https://formsubmit.co/ajax/kontakt@relationfoerst.dk', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(data)
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if (res.success === 'true' || res.success === true) {
+        form.reset();
+        status.textContent = 'Tak for din henvendelse. Vi vender tilbage inden for en hverdag.';
+      } else { throw new Error(res.message || 'fejl'); }
+    }).catch(function(){
+      status.textContent = 'Beskeden kunne ikke sendes. Skriv i stedet til kontakt@relationfoerst.dk.';
+    }).finally(function(){
+      status.hidden = false; knap.disabled = false; knap.textContent = 'Send forespørgsel';
+    });
+  });
+})();
 </script>
 
 </body>
