@@ -71,30 +71,6 @@ WEBSITE = {
     "url": BASE + "/",
 }
 
-FAQ = [
-    ("Hvad er RelationFørst?",
-     "RelationFørst er en pædagogisk organisation på Sjælland, stiftet af Ismail Selek og Joshua "
-     "Kabagarama. Vi tilbyder forløb til børn, unge og voksne i udsatte positioner og samarbejder "
-     "med kommuner og organisationer."),
-    ("Hvilke forløb tilbyder I?",
-     "Forløb med udsatte unge, mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser og "
-     "soloprojekter, hjælp til unge i krise og støtte til børn og unge med ADHD."),
-    ("Hvem samarbejder I med?",
-     "Vi samarbejder med kommuner, sagsbehandlere og organisationer, og vi inddrager familien, "
-     "når det giver mening."),
-    ("Hvilket område dækker I?", "Vi arbejder på hele Sjælland."),
-    ("Hvordan arbejder I?",
-     "Vi arbejder med low arousal og relationsarbejde. Vi møder den unge der, hvor de er, og "
-     "bygger tillid, før vi stiller krav."),
-    ("Kan I hjælpe familier, der ikke taler dansk?",
-     "Ja. Vi har erfaring med borgere og familier, der ikke taler dansk, og kan nå dem, som "
-     "sproget ellers holder ude."),
-    ("Tilbyder I også vikarer?",
-     "Ja, vi løser vikaropgaver efter aftale. Vores hovedfokus er forløb."),
-    ("Hvordan kontakter jeg RelationFørst?",
-     "Skriv via kontaktformularen på relationfoerst.dk/kontakt eller send en mail til "
-     "kontakt@relationfoerst.dk. Vi svarer inden for en hverdag."),
-]
 
 
 def jsonld(obj):
@@ -209,35 +185,14 @@ facts = """  <section style="padding-top:0">
     <div class="wrap facts">
       <span class="eyebrow">Kort om os</span>
       <h2>Hvem er RelationFørst?</h2>
-      <p>RelationFørst er en pædagogisk organisation på Sjælland. Vi tilbyder forløb til børn, unge og voksne i udsatte positioner, blandt andet mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser og hjælp til unge i krise.</p>
-      <p>Vi samarbejder med kommuner og organisationer. Vi har erfaring fra sikrede institutioner, gadeplan, folkeskole og bosteder, og vi arbejder med low arousal og relationsarbejde. RelationFørst er stiftet af Ismail Selek og Joshua Kabagarama.</p>
+      <p>RelationFørst er en pædagogisk organisation på Sjælland, stiftet af Ismail Selek og Joshua Kabagarama. Vi tilbyder forløb til børn, unge og voksne i udsatte positioner, blandt andet mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser og hjælp til unge i krise.</p>
+      <p>Vi samarbejder med kommuner, sagsbehandlere og organisationer, og vi inddrager familien, når det giver mening. Vi har erfaring fra sikrede institutioner, gadeplan, folkeskole og bosteder, og vi når også de familier, der ikke taler dansk.</p>
     </div>
   </section>"""
-
-faq_html = "\n".join(
-    "        <details><summary>%s</summary><p>%s</p></details>" % (q, a) for q, a in FAQ)
-faq_section = f"""  <section id="faq" style="padding-top:0">
-    <div class="wrap">
-      <div class="sec-head">
-        <span class="eyebrow">Spørgsmål og svar</span>
-        <h2>Ofte stillede spørgsmål</h2>
-      </div>
-      <div class="faq">
-{faq_html}
-      </div>
-    </div>
-  </section>"""
-
-faq_ld = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [{"@type": "Question", "name": q,
-                    "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ],
-}
 
 write("/", page("/", "RelationFørst - Pædagogiske forløb", DESC_HOME,
-                "\n\n".join([fix_links(hero()), facts, overview, faq_section]),
-                extra_ld=[ORG, WEBSITE, faq_ld]))
+                "\n\n".join([fix_links(hero()), facts, overview]),
+                extra_ld=[ORG, WEBSITE]))
 
 # ---------- Undersider ----------
 SUBS = [
@@ -296,9 +251,6 @@ RelationFørst må ikke forveksles med RelationerFørst (relationerfoerst.dk) i 
 - [Tilgang]({BASE}/tilgang/): Low arousal, relationsarbejde, at møde unge på bølgelængde
 - [Om os]({BASE}/om-os/): Hvem vi er og stifterne
 - [Kontakt]({BASE}/kontakt/): Kontaktformular og mail
-
-## Ofte stillede spørgsmål
-
-""" + "\n".join(f"**{q}** {a}\n" for q, a in FAQ))
+""")
 
 print("Bygget:", ", ".join(urls))
