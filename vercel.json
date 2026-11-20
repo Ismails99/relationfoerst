@@ -1,3 +1,55 @@
 {
-  "trailingSlash": true
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/forloeb",
+      "destination": "/#forloeb",
+      "permanent": true
+    },
+    {
+      "source": "/forloeb/",
+      "destination": "/#forloeb",
+      "permanent": true
+    },
+    {
+      "source": "/erfaring",
+      "destination": "/#erfaring",
+      "permanent": true
+    },
+    {
+      "source": "/erfaring/",
+      "destination": "/#erfaring",
+      "permanent": true
+    },
+    {
+      "source": "/tilgang",
+      "destination": "/#tilgang",
+      "permanent": true
+    },
+    {
+      "source": "/tilgang/",
+      "destination": "/#tilgang",
+      "permanent": true
+    },
+    {
+      "source": "/om-os",
+      "destination": "/#om-os",
+      "permanent": true
+    },
+    {
+      "source": "/om-os/",
+      "destination": "/#om-os",
+      "permanent": true
+    },
+    {
+      "source": "/kontakt",
+      "destination": "/#kontakt",
+      "permanent": true
+    },
+    {
+      "source": "/kontakt/",
+      "destination": "/#kontakt",
+      "permanent": true
+    }
+  ]
 }

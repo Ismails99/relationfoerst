@@ -2,8 +2,8 @@
 
 Ret indhold i kilde.html (én lang side med sektioner) og kør:
     python3 _build/build.py
-Så genereres index.html og undersiderne (forloeb/, erfaring/, tilgang/, om-os/, kontakt/),
-sitemap.xml og llms.txt.
+Så genereres index.html (én lang side med alle sektioner), sitemap.xml og llms.txt.
+De gamle undersider sendes videre til ankre på forsiden via vercel.json.
 """
 import json
 import re
@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = (ROOT / "_build" / "kilde.html").read_text()
 BASE = "https://www.relationfoerst.dk"
-TODAY = "2026-11-19"
+TODAY = "2026-11-20"
 NAME = "RelationFørst"
 
 
@@ -37,12 +37,12 @@ def promote(html):
 
 
 def fix_links(html):
-    return (html.replace('href="#kontakt"', 'href="/kontakt/"')
-                .replace('href="#forloeb"', 'href="/forloeb/"'))
+    return html
 
 
-NAV = [("/forloeb/", "Forløb"), ("/erfaring/", "Erfaring"), ("/tilgang/", "Tilgang"),
-       ("/om-os/", "Om os"), ("/kontakt/", "Kontakt")]
+
+NAV = [("#forloeb", "Forløb"), ("#erfaring", "Erfaring"), ("#tilgang", "Tilgang"),
+       ("#om-os", "Om os"), ("#kontakt", "Kontakt")]
 
 DESC_HOME = ("RelationFørst (relationfoerst.dk) tilbyder pædagogiske forløb, mentor- og "
              "kontaktpersonforløb til børn og unge i udsatte positioner på Sjælland.")
@@ -93,7 +93,7 @@ def page(path, title, desc, body, extra_ld=(), with_script=False):
     nav = "\n".join(
         '      <li><a href="%s"%s>%s</a></li>' % (h, ' aria-current="page"' if h == path else "", t)
         for h, t in NAV)
-    foot_nav = "\n".join('        <li><a href="%s">%s</a></li>' % (h, t) for h, t in [("/", "Forside")] + NAV)
+    foot_nav = "\n".join('        <li><a href="%s">%s</a></li>' % (h, t) for h, t in [("#top", "Til toppen")] + NAV)
     ld = "\n".join(jsonld(x) for x in extra_ld)
     return f"""<!doctype html>
 <html lang="da">
@@ -164,67 +164,20 @@ def write(path, html):
     out.write_text(html)
 
 
-# ---------- Forside ----------
-overview = """  <section style="padding-top:0">
-    <div class="wrap">
-      <div class="sec-head">
-        <span class="eyebrow">Find rundt</span>
-        <h2>Det kan du læse om</h2>
-      </div>
-      <div class="overview">
-        <a href="/forloeb/"><strong>Forløb</strong><span>Mentor-, kontaktperson- og 1:1-forløb til udsatte unge.</span><em>Se forløb →</em></a>
-        <a href="/erfaring/"><strong>Erfaring</strong><span>Sikrede institutioner, gadeplan, skole og bosteder.</span><em>Se erfaring →</em></a>
-        <a href="/tilgang/"><strong>Tilgang</strong><span>Low arousal og relationsarbejde.</span><em>Se tilgang →</em></a>
-        <a href="/om-os/"><strong>Om os</strong><span>Hvem vi er, og hvorfor relationen kommer først.</span><em>Mød os →</em></a>
-        <a href="/kontakt/"><strong>Kontakt</strong><span>Skriv til os, så svarer vi inden for en hverdag.</span><em>Kontakt os →</em></a>
-      </div>
-    </div>
-  </section>"""
+# ---------- Én lang side ----------
+om_os = section("om-os").replace("<h2>Relation Først</h2>", "<h2>Om RelationFørst</h2>")
+om_os = re.sub(r'(<div class="about-text">.*?<h2>.*?</h2>).*?(</div>)', lambda m: m.group(1) + """
+        <p>RelationFørst er en pædagogisk organisation på Sjælland, stiftet af Ismail Selek og Joshua Kabagarama. Vi tilbyder forløb til børn, unge og voksne i udsatte positioner, blandt andet mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser og hjælp til unge i krise.</p>
+        <p>Vi samarbejder med kommuner, sagsbehandlere og organisationer, og vi inddrager familien, når det giver mening. Vi løser også vikaropgaver efter aftale, men vores fokus er forløb.</p>
+      """ + m.group(2), om_os, count=1, flags=re.S)
 
-facts = """  <section style="padding-top:0">
-    <div class="wrap facts">
-      <span class="eyebrow">Kort om os</span>
-      <h2>Hvem er RelationFørst?</h2>
-      <p>RelationFørst er en pædagogisk organisation på Sjælland, stiftet af Ismail Selek og Joshua Kabagarama. Vi tilbyder forløb til børn, unge og voksne i udsatte positioner, blandt andet mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser og hjælp til unge i krise.</p>
-      <p>Vi samarbejder med kommuner, sagsbehandlere og organisationer, og vi inddrager familien, når det giver mening. Vi har erfaring fra sikrede institutioner, gadeplan, folkeskole og bosteder, og vi når også de familier, der ikke taler dansk.</p>
-    </div>
-  </section>"""
-
-write("/", page("/", "RelationFørst - Pædagogiske forløb", DESC_HOME,
-                "\n\n".join([fix_links(hero()), facts, overview]),
-                extra_ld=[ORG, WEBSITE]))
-
-# ---------- Undersider ----------
-SUBS = [
-    ("/forloeb/", "Forløb", "forloeb",
-     "Forløb | RelationFørst",
-     "Mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser, hjælp til unge i krise og ADHD. "
-     "Pædagogiske forløb på Sjælland fra RelationFørst."),
-    ("/erfaring/", "Erfaring", "erfaring",
-     "Erfaring | RelationFørst",
-     "RelationFørst har erfaring fra sikrede institutioner, gadeplan, folkeskole, bosteder og "
-     "intensive 1:1- og 2:1-indsatser."),
-    ("/tilgang/", "Tilgang", "tilgang",
-     "Vores tilgang | RelationFørst",
-     "Low arousal, relationsarbejde og at møde unge på bølgelængde. Sådan arbejder RelationFørst."),
-    ("/om-os/", "Om os", "om-os",
-     "Om os | RelationFørst",
-     "Mød RelationFørst og stifterne Ismail Selek og Joshua Kabagarama. Pædagogiske forløb til "
-     "udsatte unge på Sjælland."),
-    ("/kontakt/", "Kontakt", "kontakt",
-     "Kontakt | RelationFørst",
-     "Kontakt RelationFørst om et forløb på kontakt@relationfoerst.dk eller via formularen. "
-     "Vi svarer inden for en hverdag."),
-]
-for path, label, sid, title, desc in SUBS:
-    body = promote(fix_links(section(sid)))
-    if sid == "om-os":
-        body = body.replace('<h1 class="h2">Relation Først</h1>', '<h1 class="h2">Om RelationFørst</h1>')
-    write(path, page(path, title, desc, body, extra_ld=[breadcrumb(path, label)],
-                     with_script=(sid == "kontakt")))
+body = "\n\n".join([hero(), section("forloeb"), section("erfaring"), section("tilgang"),
+                      om_os, section("kontakt")])
+write("/", page("/", "RelationFørst - Pædagogiske forløb", DESC_HOME, body,
+                extra_ld=[ORG, WEBSITE], with_script=True))
 
 # ---------- sitemap.xml ----------
-urls = ["/"] + [s[0] for s in SUBS]
+urls = ["/"]
 (ROOT / "sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -243,14 +196,13 @@ RelationFørst må ikke forveksles med RelationerFørst (relationerfoerst.dk) i 
 - Tilgang: low arousal og relationsarbejde
 - Vikaropgaver løses efter aftale, men hovedfokus er forløb
 
-## Sider
+## Indhold på {BASE}/
 
-- [Forside]({BASE}/): Overblik og ofte stillede spørgsmål
-- [Forløb]({BASE}/forloeb/): Mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser, unge i krise, ADHD, familier der ikke taler dansk
-- [Erfaring]({BASE}/erfaring/): Sikrede institutioner, gadeplan, folkeskole, bosteder
-- [Tilgang]({BASE}/tilgang/): Low arousal, relationsarbejde, at møde unge på bølgelængde
-- [Om os]({BASE}/om-os/): Hvem vi er og stifterne
-- [Kontakt]({BASE}/kontakt/): Kontaktformular og mail
+- [Forløb]({BASE}/#forloeb): Mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser, unge i krise, ADHD, familier der ikke taler dansk
+- [Erfaring]({BASE}/#erfaring): Sikrede institutioner, gadeplan, folkeskole, bosteder
+- [Tilgang]({BASE}/#tilgang): Low arousal, relationsarbejde, at møde unge på bølgelængde
+- [Om os]({BASE}/#om-os): Hvem vi er og stifterne
+- [Kontakt]({BASE}/#kontakt): Kontaktformular og mail
 """)
 
 print("Bygget:", ", ".join(urls))

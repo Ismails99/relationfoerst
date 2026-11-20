@@ -9,11 +9,10 @@ RelationFørst må ikke forveksles med RelationerFørst (relationerfoerst.dk) i 
 - Tilgang: low arousal og relationsarbejde
 - Vikaropgaver løses efter aftale, men hovedfokus er forløb
 
-## Sider
+## Indhold på https://www.relationfoerst.dk/
 
-- [Forside](https://www.relationfoerst.dk/): Overblik og ofte stillede spørgsmål
-- [Forløb](https://www.relationfoerst.dk/forloeb/): Mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser, unge i krise, ADHD, familier der ikke taler dansk
-- [Erfaring](https://www.relationfoerst.dk/erfaring/): Sikrede institutioner, gadeplan, folkeskole, bosteder
-- [Tilgang](https://www.relationfoerst.dk/tilgang/): Low arousal, relationsarbejde, at møde unge på bølgelængde
-- [Om os](https://www.relationfoerst.dk/om-os/): Hvem vi er og stifterne
-- [Kontakt](https://www.relationfoerst.dk/kontakt/): Kontaktformular og mail
+- [Forløb](https://www.relationfoerst.dk/#forloeb): Mentorforløb, kontaktpersonforløb, 1:1- og 2:1-indsatser, unge i krise, ADHD, familier der ikke taler dansk
+- [Erfaring](https://www.relationfoerst.dk/#erfaring): Sikrede institutioner, gadeplan, folkeskole, bosteder
+- [Tilgang](https://www.relationfoerst.dk/#tilgang): Low arousal, relationsarbejde, at møde unge på bølgelængde
+- [Om os](https://www.relationfoerst.dk/#om-os): Hvem vi er og stifterne
+- [Kontakt](https://www.relationfoerst.dk/#kontakt): Kontaktformular og mail
