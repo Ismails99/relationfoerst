@@ -259,31 +259,50 @@
 </footer>
 <script>
 (function(){
+  // Sæt Web3Forms-nøglen her, når den er modtaget på kontakt@relationfoerst.dk.
+  // Er den tom, bruges FormSubmit.
+  var WEB3FORMS_KEY = '';
   var form = document.getElementById('kontaktform');
   var knap = document.getElementById('sendknap');
   var status = document.getElementById('sent');
+  function vis(tekst){ status.textContent = tekst; status.hidden = false; }
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if (form._honey.value) return;
     var data = {};
     new FormData(form).forEach(function(v, k){ if (k !== '_honey') data[k] = v; });
-    data._subject = 'Ny henvendelse fra relationfoerst.dk: ' + (data.emne || '');
-    data._template = 'table';
-    data._replyto = data.email;
+    var emne = 'Ny henvendelse fra relationfoerst.dk: ' + (data.emne || '');
+    var url;
+    if (WEB3FORMS_KEY) {
+      url = 'https://api.web3forms.com/submit';
+      data.access_key = WEB3FORMS_KEY; data.subject = emne; data.from_name = 'relationfoerst.dk';
+      data.replyto = data.email;
+    } else {
+      url = 'https://formsubmit.co/ajax/kontakt@relationfoerst.dk';
+      data._subject = emne; data._template = 'table'; data._replyto = data.email;
+    }
     knap.disabled = true; knap.textContent = 'Sender…';
-    fetch('https://formsubmit.co/ajax/kontakt@relationfoerst.dk', {
+    vis('Sender din besked. Det tager normalt et par sekunder.');
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function(){ if (ctrl) ctrl.abort(); }, 20000);
+    fetch(url, {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      signal: ctrl ? ctrl.signal : undefined
     }).then(function(r){ return r.json(); }).then(function(res){
-      if (res.success === 'true' || res.success === true) {
+      if (res.success === true || res.success === 'true') {
         form.reset();
-        status.textContent = 'Tak for din henvendelse. Vi vender tilbage inden for en hverdag.';
-      } else { throw new Error(res.message || 'fejl'); }
-    }).catch(function(){
-      status.textContent = 'Beskeden kunne ikke sendes. Skriv i stedet til kontakt@relationfoerst.dk.';
-    }).finally(function(){
-      status.hidden = false; knap.disabled = false; knap.textContent = 'Send forespørgsel';
+        vis('Tak for din henvendelse. Vi vender tilbage inden for en hverdag.');
+      } else {
+        vis('Beskeden kunne ikke sendes lige nu. Skriv i stedet til kontakt@relationfoerst.dk.' + (res.message ? ' (' + res.message + ')' : ''));
+      }
+    }).catch(function(err){
+      vis(err && err.name === 'AbortError'
+        ? 'Det tager for lang tid at sende. Prøv igen om lidt, eller skriv til kontakt@relationfoerst.dk.'
+        : 'Beskeden kunne ikke sendes. Skriv i stedet til kontakt@relationfoerst.dk.');
+    }).then(function(){
+      clearTimeout(timer); knap.disabled = false; knap.textContent = 'Send forespørgsel';
     });
   });
 })();
